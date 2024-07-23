@@ -28,7 +28,7 @@ func NewCamera(position, up mgl32.Vec3, yaw, pitch float32) *Camera {
 		Yaw:              yaw,
 		Pitch:            pitch,
 		Front:            mgl32.Vec3{0.0, 0.0, -1.0},
-		MovementSpeed:    2.5,
+		MovementSpeed:    10,
 		MouseSensitivity: 0.1,
 		Zoom:             45.0,
 	}

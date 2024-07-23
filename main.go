@@ -8,6 +8,7 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/oaorotti/poor-engine/camera"
+	"github.com/oaorotti/poor-engine/mesh"
 	"github.com/oaorotti/poor-engine/shaders"
 	"github.com/oaorotti/poor-engine/textures"
 )
@@ -144,10 +145,10 @@ func main() {
 	gl.Uniform1i(gl.GetUniformLocation(shader, gl.Str("ourTexture\x00")), 0)
 
 	// Light and view positions
-	lightPos := mgl32.Vec3{1.2, 1.0, 1.0}
+	lightPos := mgl32.Vec3{1.0, 1.0, 1.0}
 	viewPos := mgl32.Vec3{0.0, 0.0, 3.0}
 	lightColor := mgl32.Vec3{1.0, 1.0, 1.0}
-	objectColor := mgl32.Vec3{1.0, 0.5, 0.31}
+	objectColor := mgl32.Vec3{1.0, 1, 1.0}
 
 	gl.Uniform3fv(gl.GetUniformLocation(shader, gl.Str("lightPos\x00")), 1, &lightPos[0])
 	gl.Uniform3fv(gl.GetUniformLocation(shader, gl.Str("viewPos\x00")), 1, &viewPos[0])
@@ -157,6 +158,11 @@ func main() {
 	modelLoc := gl.GetUniformLocation(shader, gl.Str("model\x00"))
 	viewLoc := gl.GetUniformLocation(shader, gl.Str("view\x00"))
 	projectionLoc := gl.GetUniformLocation(shader, gl.Str("projection\x00"))
+
+	house := mesh.LoadMesh("assets/models/cottage_obj.obj")
+	defer house.ReleaseMesh()
+
+	gl.Enable(gl.DEPTH_TEST)
 
 	for !window.ShouldClose() {
 		currentFrame := float32(glfw.GetTime())
@@ -173,12 +179,14 @@ func main() {
 
 		model := mgl32.Ident4()
 		view := myCamera.GetViewMatrix()
-		projection := mgl32.Perspective(mgl32.DegToRad(myCamera.Zoom), float32(1280)/float32(720), 0.1, 100.0)
+		projection := mgl32.Perspective(mgl32.DegToRad(myCamera.Zoom), float32(1280)/float32(720), 0.1, 1000.0)
 
 		gl.UniformMatrix4fv(viewLoc, 1, false, &view[0])
 		gl.UniformMatrix4fv(projectionLoc, 1, false, &projection[0])
 
 		gl.UniformMatrix4fv(modelLoc, 1, false, &model[0])
+
+		mesh.RenderMesh(*house)
 
 		gl.BindVertexArray(vao)
 		gl.DrawArrays(gl.TRIANGLES, 0, 3)
